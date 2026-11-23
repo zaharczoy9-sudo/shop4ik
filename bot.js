@@ -40,19 +40,19 @@ const DEFAULT_STORE = {
     managerContact: "@demovape_bot",
   },
   products: [
-    { id: "liq-podonki-1", category: "liquids", brand: "PODONKI", name: "Ледяной Гранат и Мята", price: 21, strengths: [0, 3, 6], inStock: true, icon: "🧊" },
-    { id: "liq-podonki-2", category: "liquids", brand: "PODONKI", name: "Кислый Крыжовник", price: 22, strengths: [3, 6], inStock: true, icon: "🫐" },
-    { id: "liq-podonki-3", category: "liquids", brand: "PODONKI", name: "Манговый Нектар", price: 20, strengths: [0, 3, 6], inStock: false, icon: "🥭" },
-    { id: "liq-catswill-1", category: "liquids", brand: "Catswill", name: "Черничный Пирог", price: 19, strengths: [0, 3, 6], inStock: true, icon: "🥧" },
-    { id: "liq-catswill-2", category: "liquids", brand: "Catswill", name: "Хвоя и Зелёное Яблоко", price: 24, strengths: [3, 6], inStock: true, icon: "🍏" },
-    { id: "liq-hotspot-1", category: "liquids", brand: "Hotspot", name: "Спелый Персик и Личи", price: 23, strengths: [0, 3, 6], inStock: true, icon: "🍑" },
-    { id: "liq-faff-1", category: "liquids", brand: "Faff", name: "Земляника со Сливками", price: 25, strengths: [3, 6], inStock: true, icon: "🍓" },
-    { id: "liq-rm-1", category: "liquids", brand: "Rick & Morty", name: "Цитадельский Фрост", price: 16, strengths: [0, 3, 6], inStock: true, icon: "🧪" },
-    { id: "cart-xros-06", category: "cartridges", brand: "XROS", name: "Картридж 0.6 Ом (3 мл)", price: 14, strengths: null, inStock: true, icon: "🔋" },
-    { id: "cart-xros-08", category: "cartridges", brand: "XROS", name: "Картридж 0.8 Ом (2 мл)", price: 14, strengths: null, inStock: true, icon: "🔋" },
-    { id: "cart-vthru-07", category: "cartridges", brand: "V.THRU / VMATE", name: "Картридж VMATE Top Fill 0.7 Ом", price: 15, strengths: null, inStock: true, icon: "⚡" },
-    { id: "cart-aegis-04", category: "cartridges", brand: "AEGIS", name: "Испаритель B-Series 0.4 Ом", price: 14, strengths: null, inStock: true, icon: "🛡️" },
-    { id: "cart-pasito-06", category: "cartridges", brand: "PASITO", name: "Картридж Pasito II / Mini 0.6 Ом", price: 15, strengths: null, inStock: true, icon: "🎛️" },
+    { id: "liq-podonki-1", category: "liquids", brand: "PODONKI", name: "Ледяной Гранат и Мята", price: 21, strengths: [0, 3, 6], inStock: true, icon: "🧊", image: null },
+    { id: "liq-podonki-2", category: "liquids", brand: "PODONKI", name: "Кислый Крыжовник", price: 22, strengths: [3, 6], inStock: true, icon: "🫐", image: null },
+    { id: "liq-podonki-3", category: "liquids", brand: "PODONKI", name: "Манговый Нектар", price: 20, strengths: [0, 3, 6], inStock: false, icon: "🥭", image: null },
+    { id: "liq-catswill-1", category: "liquids", brand: "Catswill", name: "Черничный Пирог", price: 19, strengths: [0, 3, 6], inStock: true, icon: "🥧", image: null },
+    { id: "liq-catswill-2", category: "liquids", brand: "Catswill", name: "Хвоя и Зелёное Яблоко", price: 24, strengths: [3, 6], inStock: true, icon: "🍏", image: null },
+    { id: "liq-hotspot-1", category: "liquids", brand: "Hotspot", name: "Спелый Персик и Личи", price: 23, strengths: [0, 3, 6], inStock: true, icon: "🍑", image: null },
+    { id: "liq-faff-1", category: "liquids", brand: "Faff", name: "Земляника со Сливками", price: 25, strengths: [3, 6], inStock: true, icon: "🍓", image: null },
+    { id: "liq-rm-1", category: "liquids", brand: "Rick & Morty", name: "Цитадельский Фрост", price: 16, strengths: [0, 3, 6], inStock: true, icon: "🧪", image: null },
+    { id: "cart-xros-06", category: "cartridges", brand: "XROS", name: "Картридж 0.6 Ом (3 мл)", price: 14, strengths: null, inStock: true, icon: "🔋", image: null },
+    { id: "cart-xros-08", category: "cartridges", brand: "XROS", name: "Картридж 0.8 Ом (2 мл)", price: 14, strengths: null, inStock: true, icon: "🔋", image: null },
+    { id: "cart-vthru-07", category: "cartridges", brand: "V.THRU / VMATE", name: "Картридж VMATE Top Fill 0.7 Ом", price: 15, strengths: null, inStock: true, icon: "⚡", image: null },
+    { id: "cart-aegis-04", category: "cartridges", brand: "AEGIS", name: "Испаритель B-Series 0.4 Ом", price: 14, strengths: null, inStock: true, icon: "🛡️", image: null },
+    { id: "cart-pasito-06", category: "cartridges", brand: "PASITO", name: "Картридж Pasito II / Mini 0.6 Ом", price: 15, strengths: null, inStock: true, icon: "🎛️", image: null },
   ],
   orders: [],
 };
@@ -83,9 +83,16 @@ function ensureStore() {
       o.status = STATUSES[o.statusKey];
       return o;
     });
+    
+    // Backward compatibility: ensure all products have image field (null if missing)
+    const products = Array.isArray(parsed.products) ? parsed.products : DEFAULT_STORE.products;
+    products.forEach((p) => {
+      if (!("image" in p)) p.image = null;
+    });
+    
     return {
       config: { ...DEFAULT_STORE.config, ...(parsed.config || {}) },
-      products: Array.isArray(parsed.products) ? parsed.products : DEFAULT_STORE.products,
+      products,
       orders,
     };
   } catch (e) {
@@ -524,6 +531,23 @@ function upsertProduct(input) {
     strengths = arr.length ? [...new Set(arr)].sort((a, b) => a - b) : [0, 3, 6];
   }
 
+  // Validate image if provided (data URL format)
+  let image = null;
+  if (input.image && typeof input.image === "string") {
+    if (input.image.startsWith("data:image/")) {
+      // Rough size check: data URLs are ~1.33x larger than binary due to base64 encoding
+      // 2 MB binary ≈ 2.67 MB base64 data URL
+      if (input.image.length > 3.5 * 1024 * 1024) {
+        return { error: "Изображение слишком большое (макс. 2 МБ)" };
+      }
+      // Validate MIME type
+      if (!input.image.match(/^data:image\/(png|jpeg|webp);base64,/)) {
+        return { error: "Поддерживаются только PNG, JPEG, WebP" };
+      }
+      image = input.image;
+    }
+  }
+
   const data = {
     category,
     brand,
@@ -532,6 +556,7 @@ function upsertProduct(input) {
     strengths,
     inStock: input.inStock !== false,
     icon: clip(input.icon, 8) || (category === "liquids" ? "💧" : "🔋"),
+    image: image || null, // Store image as data URL or null for backward compatibility
   };
 
   const existing = input.id ? store.products.find((p) => p.id === input.id) : null;
