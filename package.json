@@ -1,0 +1,12 @@
+{
+  "name": "minsk-vape-tma",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static Telegram Mini App for Minsk store",
+  "scripts": {
+    "start": "npx --yes serve -s . -l ${PORT:-3000}"
+  },
+  "dependencies": {
+    "serve": "^14.2.3"
+  }
+}
