@@ -690,7 +690,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       if (p === "/admin/api/product" && req.method === "POST") {
-        const body = await readJson(req);
+        const body = await readJson(req, 10 * 1024 * 1024); // до 10 МБ — фото в base64
         const r = upsertProduct(body);
         if (r.error) return sendJson(res, 400, { ok: false, error: r.error });
         broadcast("catalog", { products: store.products });
