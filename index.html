@@ -1161,20 +1161,23 @@
 </head>
 <body>
   <div class="app" id="app">
-    <header class="topbar">
-      <div class="topbar-left">
-        <button type="button" class="back-btn" id="headerBackBtn" aria-label="Назад" style="display:none;">←</button>
-        <div>
-          <h1 class="brand-title" id="shopTitle">МАГАЗИН</h1>
-          <div class="brand-subtitle">📍 Минск • <span id="headerManager">@username</span></div>
-        </div>
-      </div>
-      <button type="button" class="cart-trigger" id="openCartBtn" aria-label="Открыть корзину">
-        <span>🛒</span>
-        <span class="cart-badge" id="cartBadge">0</span>
-      </button>
-    </header>
+          const orderNumber = generateOrderNumber();
+      const payload = buildOrderPayload(orderNumber);
+      if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        payload.tgUser = tg.initDataUnsafe.user;
+      }
+      state.lastOrder = payload;
 
+      console.log("ORDER_PAYLOAD:", JSON.stringify(payload, null, 2));
+
+      if (window.location.protocol !== "file:") {
+        fetch("/api/order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        }).catch((err) => console.error("Order POST error:", err));
+      }
+    
     <main class="view active" id="viewCatalog">
       <div class="segment-tabs" id="categoryTabs" data-active="liquids">
         <div class="segment-indicator"></div>
