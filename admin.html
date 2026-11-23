@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Админка магазина</title>
+<style>
+  :root {
+    --bg: #090b0a; --elev: #111513; --card: #151a17; --input: #0e1210;
+    --text: #f4f6f5; --text2: #9aa59f; --muted: #66706b;
+    --gold: #d4af37; --gold-soft: rgba(212,175,55,.14);
+    --green: #10b981; --green-soft: rgba(16,185,129,.14);
+    --red: #ef4444; --red-soft: rgba(239,68,68,.14);
+    --blue: #60a5fa; --blue-soft: rgba(96,165,250,.14);
+    --border: rgba(255,255,255,.08);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  .hidden { display: none !important; }
+
+  /* Login */
+  #login { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
+  .login-box { width: 100%; max-width: 360px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 28px; }
+  .login-box h1 { margin: 0 0 4px; font-size: 22px; }
+  .login-box p { margin: 0 0 18px; color: var(--text2); }
+
+  input, select, textarea { width: 100%; background: var(--input); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; outline: none; }
+  input:focus, select:focus, textarea:focus { border-color: var(--gold); }
+  label { display: block; font-size: 12px; color: var(--text2); margin: 12px 0 4px; }
+
+  .btn { border: 1px solid var(--border); background: var(--card); border-radius: 10px; padding: 9px 14px; transition: .15s; }
+  .btn:hover { background: #1b221e; }
+  .btn.primary { background: var(--gold); color: #1a1500; border-color: var(--gold); font-weight: 600; }
+  .btn.primary:hover { background: #e7c656; }
+  .btn.green { background: var(--green-soft); color: #34d399; border-color: rgba(16,185,129,.35); }
+  .btn.red { background: var(--red-soft); color: #f87171; border-color: rgba(239,68,68,.35); }
+  .btn.blue { background: var(--blue-soft); color: var(--blue); border-color: rgba(96,165,250,.35); }
+  .btn.sm { padding: 6px 10px; font-size: 13px; }
+  .err { color: #f87171; font-size: 13px; min-height: 18px; margin-top: 8px; }
+
+  /* Layout */
+  header { position: sticky; top: 0; z-index: 10; background: rgba(9,11,10,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+  .bar { max-width: 1100px; margin: 0 auto; padding: 12px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .brand { font-weight: 700; font-size: 17px; }
+  .brand span { color: var(--gold); }
+  .spacer { flex: 1; }
+  .live { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text2); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .dot.on { background: var(--green); box-shadow: 0 0 0 0 rgba(16,185,129,.6); animation: pulse 2s infinite; }
+  @keyframes pulse { 70% { box-shadow: 0 0 0 8px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
+  nav { max-width: 1100px; margin: 0 auto; padding: 0 16px 10px; display: flex; gap: 8px; }
+  nav button { background: transparent; border: 1px solid transparent; border-radius: 999px; padding: 7px 16px; color: var(--text2); }
+  nav button.active { background: var(--gold-soft); color: var(--gold); border-color: rgba(212,175,55,.35); }
+  nav .count { background: var(--red); color: #fff; border-radius: 999px; font-size: 11px; padding: 1px 7px; margin-left: 6px; }
+  main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; }
+  .stat b { display: block; font-size: 24px; margin-top: 2px; }
+  .stat small { color: var(--text2); }
+
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .chip { background: var(--card); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px; font-size: 13px; color: var(--text2); }
+  .chip.active { background: var(--gold-soft); color: var(--gold); border-color: rgba(212,175,55,.35); }
+
+  .order { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+  .order.fresh { animation: flash 2.4s ease-out; }
+  @keyframes flash { 0% { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,.35); } 100% { border-color: var(--border); box-shadow: none; } }
+  .order-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .order-head h3 { margin: 0; font-size: 17px; }
+  .badge { font-size: 12px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--border); }
+  .badge.new { background: var(--gold-soft); color: var(--gold); }
+  .badge.accepted { background: var(--blue-soft); color: var(--blue); }
+  .badge.delivering { background: rgba(168,85,247,.14); color: #c084fc; }
+  .badge.done { background: var(--green-soft); color: #34d399; }
+  .badge.cancelled { background: var(--red-soft); color: #f87171; }
+  .src { font-size: 12px; color: var(--muted); }
+  .time { margin-left: auto; color: var(--muted); font-size: 13px; }
+  .order-body { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px; }
+  @media (max-width: 700px) { .order-body { grid-template-columns: 1fr; } }
+  .kv { color: var(--text2); font-size: 14px; }
+  .kv b { color: var(--text); font-weight: 500; }
+  .kv div { margin-bottom: 3px; }
+  .items { font-size: 14px; }
+  .items div { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; border-bottom: 1px dashed var(--border); }
+  .items .gift { color: var(--gold); }
+  .total { display: flex; justify-content: space-between; margin-top: 8px; font-weight: 700; font-size: 16px; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .empty { text-align: center; color: var(--muted); padding: 50px 0; }
+
+  table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
+  th { color: var(--text2); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; background: var(--elev); }
+  td input { padding: 6px 8px; width: 80px; }
+  tr:last-child td { border-bottom: 0; }
+  .tbl-wrap { overflow-x: auto; }
+  .switch { width: 42px; height: 24px; border-radius: 999px; background: #2a312d; border: 0; position: relative; transition: .2s; }
+  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: .2s; }
+  .switch.on { background: var(--green); }
+  .switch.on::after { left: 21px; }
+
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0 16px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 8px 18px 18px; }
+  .form-grid .wide { grid-column: 1 / -1; }
+
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: grid; place-items: center; padding: 16px; z-index: 50; }
+  .modal { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 20px; width: 100%; max-width: 440px; max-height: 90vh; overflow: auto; }
+  .modal h3 { margin: 0 0 4px; }
+
+  #toasts { position: fixed; top: 14px; right: 14px; z-index: 100; display: flex; flex-direction: column; gap: 10px; max-width: calc(100vw - 28px); }
+  .toast { background: var(--card); border: 1px solid var(--gold); border-radius: 14px; padding: 14px 16px; width: 320px; max-width: 100%; box-shadow: 0 12px 32px rgba(0,0,0,.6); animation: slide .3s ease-out; cursor: pointer; }
+  .toast b { color: var(--gold); }
+  @keyframes slide { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .toast.plain { border-color: var(--border); }
+</style>
+</head>
+<body>
+
+<div id="login">
+  <form class="login-box" id="loginForm">
+    <h1>🔐 Админка</h1>
+    <p>Введите пароль для входа</p>
+    <input type="password" id="pwd" placeholder="Пароль" autocomplete="current-password" autofocus>
+    <div class="err" id="loginErr"></div>
+    <button class="btn primary" style="width:100%;margin-top:8px" type="submit">Войти</button>
+  </form>
+</div>
+
+<div id="app" class="hidden">
+  <header>
+    <div class="bar">
+      <div class="brand">🛍 <span id="shopName">Магазин</span> · админка</div>
+      <span class="live"><span class="dot" id="liveDot"></span><span id="liveText">подключение…</span></span>
+      <span class="spacer"></span>
+      <button class="btn sm" id="soundBtn" title="Звук уведомлений">🔔 Звук: вкл</button>
+      <button class="btn sm blue" id="testBtn">➕ Тестовый заказ</button>
+      <button class="btn sm" id="logoutBtn">Выйти</button>
+    </div>
+    <nav>
+      <button data-tab="orders" class="active">Заказы<span class="count hidden" id="newCount">0</span></button>
+      <button data-tab="products">Товары</button>
+      <button data-tab="settings">Настройки</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="tab-orders">
+      <div class="stats" id="stats"></div>
+      <div class="filters" id="filters"></div>
+      <div id="orders"></div>
+    </section>
+
+    <section id="tab-products" class="hidden">
+      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+        <h2 style="margin:0;font-size:18px">Каталог</h2>
+        <span class="spacer" style="flex:1"></span>
+        <button class="btn primary" id="addProductBtn">➕ Добавить товар</button>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th></th><th>Товар</th><th>Категория</th><th>Крепость</th><th>Цена</th><th>В наличии</th><th></th></tr></thead>
+        <tbody id="productsBody"></tbody>
+      </table></div>
+    </section>
+
+    <section id="tab-settings" class="hidden">
+      <h2 style="margin:0 0 12px;font-size:18px">Настройки магазина</h2>
+      <form class="form-grid" id="configForm">
+        <div><label>Название магазина</label><input name="name"></div>
+        <div><label>Валюта</label><input name="currency"></div>
+        <div><label>Стоимость доставки</label><input name="deliveryFee" type="number" min="0" step="0.5"></div>
+        <div><label>Бесплатная доставка от (0 — выкл.)</label><input name="freeDeliveryFrom" type="number" min="0" step="1"></div>
+        <div><label>Жидкостей для подарка</label><input name="liquidsForGift" type="number" min="1" step="1"></div>
+        <div><label>Подарочный товар (ID)</label><select name="giftProductId"></select></div>
+        <div><label>Часы работы</label><input name="workHours"></div>
+        <div><label>Контакт менеджера</label><input name="managerContact"></div>
+        <div class="wide"><label>Реквизиты для перевода</label><textarea name="paymentDetails" rows="3"></textarea></div>
+        <div class="wide" style="margin-top:12px"><button class="btn primary" type="submit">Сохранить</button> <span id="cfgSaved" class="src"></span></div>
+      </form>
+      <p class="src" id="tgInfo" style="margin-top:14px"></p>
+    </section>
+  </main>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  let token = localStorage.getItem("adminToken") || "";
+  let state = { config: {}, products: [], orders: [], statuses: {}, telegram: false };
+  let filter = "all";
+  let soundOn = localStorage.getItem("adminSound") !== "off";
+  let es = null;
+  const fresh = new Set();
+
+  const STATUS_ORDER = ["new", "accepted", "delivering", "done", "cancelled"];
+
+  // ── API ──
+  async function api(path, body) {
+    const opts = { headers: { Authorization: "Bearer " + token } };
+    if (body !== undefined) { opts.method = "POST"; opts.headers["Content-Type"] = "application/json"; opts.body = JSON.stringify(body); }
+    const r = await fetch(path, opts);
+    if (r.status === 401) { logout(); throw new Error("unauthorized"); }
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || "Ошибка");
+    return data;
+  }
+
+  // ── Вход ──
+  $("#loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    $("#loginErr").textContent = "";
+    try {
+      const r = await fetch("/admin/api/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: $("#pwd").value }) });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || "Ошибка входа");
+      token = data.token; localStorage.setItem("adminToken", token);
+      start();
+    } catch (err) { $("#loginErr").textContent = err.message; }
+  });
+
+  function logout() {
+    localStorage.removeItem("adminToken"); token = "";
+    if (es) { es.close(); es = null; }
+    $("#app").classList.add("hidden"); $("#login").classList.remove("hidden");
+  }
+  $("#logoutBtn").addEventListener("click", logout);
+
+  async function start() {
+    try { state = await api("/admin/api/state"); } catch (e) { return; }
+    $("#login").classList.add("hidden"); $("#app").classList.remove("hidden");
+    renderAll(); connect();
+    if ("Notification" in window && Notification.permission === "default") Notification.requestPermission();
+  }
+
+  // ── Живой поток ──
+  function connect() {
+    if (es) es.close();
+    es = new EventSource("/admin/api/stream?token=" + encodeURIComponent(token));
+    es.onopen = () => setLive(true);
+    es.onerror = () => setLive(false);
+    es.addEventListener("order_new", (e) => {
+      const o = JSON.parse(e.data);
+      if (!state.orders.some((x) => x.orderNumber === o.orderNumber)) state.orders.unshift(o);
+      fresh.add(o.orderNumber);
+      renderOrders(); renderBadge();
+      notifyNewOrder(o);
+    });
+    es.addEventListener("order_update", (e) => {
+      const o = JSON.parse(e.data);
+      const i = state.orders.findIndex((x) => x.orderNumber === o.orderNumber);
+      if (i >= 0) state.orders[i] = o; else state.orders.unshift(o);
+      renderOrders(); renderBadge();
+    });
+    es.addEventListener("catalog", (e) => { state.products = JSON.parse(e.data).products; renderProducts(); renderGiftSelect(); });
+    es.addEventListener("config", (e) => { state.config = JSON.parse(e.data).config; renderConfig(); renderHeader(); });
+  }
+  function setLive(on) {
+    $("#liveDot").classList.toggle("on", on);
+    $("#liveText").textContent = on ? "онлайн · заказы приходят мгновенно" : "переподключение…";
+  }
+
+  // ── Уведомления о новом заказе ──
+  let audioCtx = null;
+  function beep() {
+    if (!soundOn) return;
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      [880, 1175].forEach((f, i) => {
+        const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type = "sine"; o.frequency.value = f; o.connect(g); g.connect(audioCtx.destination);
+        const t = audioCtx.currentTime + i * 0.18;
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.25, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+        o.start(t); o.stop(t + 0.32);
+      });
+    } catch (e) {}
+  }
+  function notifyNewOrder(o) {
+    beep();
+    const t = document.createElement("div");
+    t.className = "toast";
+    t.innerHTML = `<b>🔥 Новый заказ №${esc(o.orderNumber)}</b><div>${esc(o.customerName)} · ${esc(o.total)} ${esc(o.currency)}</div><div class="src">${o.deliveryMethod === "pickup" ? "Самовывоз: " + esc(o.metroStation) : "Курьер"}</div>`;
+    t.addEventListener("click", () => { t.remove(); switchTab("orders"); });
+    $("#toasts").appendChild(t);
+    setTimeout(() => t.remove(), 12000);
+    if (document.hidden && "Notification" in window && Notification.permission === "granted") {
+      new Notification("Новый заказ №" + o.orderNumber, { body: `${o.customerName} · ${o.total} ${o.currency}` });
+    }
+    document.title = "🔴 Новый заказ! · Админка";
+  }
+  window.addEventListener("focus", () => { document.title = "Админка магазина"; });
+
+  function toast(msg) {
+    const t = document.createElement("div"); t.className = "toast plain"; t.textContent = msg;
+    $("#toasts").appendChild(t); setTimeout(() => t.remove(), 3000);
+  }
+
+  // ── Рендер ──
+  function renderAll() { renderHeader(); renderOrders(); renderBadge(); renderProducts(); renderConfig(); renderGiftSelect(); }
+  function renderHeader() { $("#shopName").textContent = state.config.name || "Магазин"; }
+  function renderBadge() {
+    const n = state.orders.filter((o) => o.statusKey === "new").length;
+    $("#newCount").textContent = n; $("#newCount").classList.toggle("hidden", n === 0);
+  }
+
+  function fmtTime(iso) {
+    const d = new Date(iso); if (isNaN(d)) return "";
+    return d.toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+  }
+
+  function renderOrders() {
+    const cur = state.config.currency || "";
+    const today = new Date().toDateString();
+    const todays = state.orders.filter((o) => new Date(o.createdAt).toDateString() === today && o.statusKey !== "cancelled");
+    const revenue = state.orders.filter((o) => o.statusKey !== "cancelled").reduce((s, o) => s + Number(o.total || 0), 0);
+    $("#stats").innerHTML = `
+      <div class="stat"><small>Новых заказов</small><b>${state.orders.filter((o) => o.statusKey === "new").length}</b></div>
+      <div class="stat"><small>Заказов сегодня</small><b>${todays.length}</b></div>
+      <div class="stat"><small>Выручка сегодня</small><b>${todays.reduce((s, o) => s + Number(o.total || 0), 0)} ${esc(cur)}</b></div>
+      <div class="stat"><small>Всего заказов</small><b>${state.orders.length}</b></div>
+      <div class="stat"><small>Оборот всего</small><b>${revenue} ${esc(cur)}</b></div>`;
+
+    const counts = { all: state.orders.length };
+    STATUS_ORDER.forEach((k) => (counts[k] = state.orders.filter((o) => o.statusKey === k).length));
+    $("#filters").innerHTML = ["all", ...STATUS_ORDER].map((k) =>
+      `<button class="chip ${filter === k ? "active" : ""}" data-f="${k}">${k === "all" ? "Все" : esc(state.statuses[k] || k)} · ${counts[k]}</button>`).join("");
+
+    const list = state.orders.filter((o) => filter === "all" || o.statusKey === filter);
+    if (!list.length) { $("#orders").innerHTML = `<div class="empty">Заказов пока нет.<br>Нажмите «➕ Тестовый заказ» или оформите заказ в магазине.</div>`; return; }
+
+    $("#orders").innerHTML = list.map((o) => {
+      const items = (o.items || []).map((i) =>
+        `<div class="${i.isGift ? "gift" : ""}"><span>${esc(i.brand)} — ${esc(i.name)}${i.strength != null ? " (" + esc(i.strength) + " мг)" : ""} × ${esc(i.qty)}${i.isGift ? " 🎁" : ""}</span><span>${esc(i.price * i.qty)} ${esc(o.currency)}</span></div>`).join("");
+      const delivery = o.deliveryMethod === "pickup" ? `🚇 Самовывоз: м. ${esc(o.metroStation)}` : `🛵 Курьер: ${esc(o.address)}${o.deliveryTimeSlot ? " (" + esc(o.deliveryTimeSlot) + ")" : ""}`;
+      const srcLabel = { telegram: "Telegram", web: "Сайт", demo: "Демо" }[o.source] || "";
+      const btns = STATUS_ORDER.filter((k) => k !== o.statusKey && !(["done", "cancelled"].includes(o.statusKey) && k !== "new" && k !== o.statusKey && false))
+        .map((k) => `<button class="btn sm ${k === "cancelled" ? "red" : k === "done" ? "green" : ""}" data-status="${k}" data-num="${esc(o.orderNumber)}">${esc(state.statuses[k])}</button>`).join("");
+      return `<div class="order ${fresh.has(o.orderNumber) ? "fresh" : ""}">
+        <div class="order-head"><h3>Заказ №${esc(o.orderNumber)}</h3><span class="badge ${esc(o.statusKey)}">${esc(state.statuses[o.statusKey] || o.status)}</span><span class="src">${esc(srcLabel)}</span><span class="time">${fmtTime(o.createdAt)}</span></div>
+        <div class="order-body">
+          <div class="kv">
+            <div>👤 <b>${esc(o.customerName)}</b> <span class="src">${esc(o.customerTag || "")}</span></div>
+            ${o.customerPhone ? `<div>📞 <b>${esc(o.customerPhone)}</b></div>` : ""}
+            <div>${delivery}</div>
+            <div>💳 <b>${o.paymentMethod === "cash" ? "Наличными при получении" : "Переводом по реквизитам"}</b></div>
+            ${o.comment ? `<div>💬 ${esc(o.comment)}</div>` : ""}
+          </div>
+          <div class="items">${items}${o.deliveryFee ? `<div><span>Доставка</span><span>${esc(o.deliveryFee)} ${esc(o.currency)}</span></div>` : ""}<div class="total"><span>Итого</span><span>${esc(o.total)} ${esc(o.currency)}</span></div></div>
+        </div>
+        <div class="actions">${btns}</div>
+      </div>`;
+    }).join("");
+    setTimeout(() => fresh.clear(), 2500);
+  }
+
+  function renderProducts() {
+    const cur = esc(state.config.currency || "");
+    $("#productsBody").innerHTML = state.products.map((p) => `
+      <tr>
+        <td style="font-size:22px">${esc(p.icon)}</td>
+        <td><b>${esc(p.brand)}</b><br><span class="src">${esc(p.name)}</span></td>
+        <td>${p.category === "liquids" ? "Жидкость" : "Картридж"}</td>
+        <td>${p.strengths ? esc(p.strengths.join(" / ")) + " мг" : "—"}</td>
+        <td><input type="number" min="0" step="0.5" value="${esc(p.price)}" data-price="${esc(p.id)}"> ${cur}</td>
+        <td><button class="switch ${p.inStock ? "on" : ""}" data-stock="${esc(p.id)}" aria-label="В наличии"></button></td>
+        <td style="white-space:nowrap"><button class="btn sm" data-edit="${esc(p.id)}">✏️</button> <button class="btn sm red" data-del="${esc(p.id)}">🗑</button></td>
+      </tr>`).join("");
+  }
+
+  function renderConfig() {
+    const f = $("#configForm");
+    if (f.contains(document.activeElement) && document.activeElement.tagName !== "BODY") return;
+    for (const el of f.elements) if (el.name && el.name !== "giftProductId") el.value = state.config[el.name] ?? "";
+    $("#tgInfo").textContent = state.telegram
+      ? "✅ Telegram-бот подключён: уведомления о заказах приходят менеджеру в Telegram."
+      : "ℹ️ Telegram-бот не подключён (нет BOT_TOKEN). Заказы видны здесь, в админке. Уведомления в Telegram включатся после задания BOT_TOKEN и MANAGER_CHAT_ID.";
+  }
+  function renderGiftSelect() {
+    const sel = $("#configForm [name=giftProductId]");
+    sel.innerHTML = state.products.filter((p) => p.category === "cartridges").map((p) => `<option value="${esc(p.id)}">${esc(p.brand)} — ${esc(p.name)}</option>`).join("");
+    sel.value = state.config.giftProductId;
+  }
+
+  // ── Действия ──
+  $("#filters").addEventListener("click", (e) => { const b = e.target.closest("[data-f]"); if (b) { filter = b.dataset.f; renderOrders(); } });
+
+  $("#orders").addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-status]"); if (!b) return;
+    b.disabled = true;
+    try { await api("/admin/api/order/status", { orderNumber: b.dataset.num, status: b.dataset.status }); } catch (err) { toast(err.message); }
+  });
+
+  $("#testBtn").addEventListener("click", async () => {
+    try { await api("/admin/api/test-order", {}); } catch (err) { toast(err.message); }
+  });
+
+  $("#soundBtn").addEventListener("click", () => {
+    soundOn = !soundOn; localStorage.setItem("adminSound", soundOn ? "on" : "off");
+    $("#soundBtn").textContent = "🔔 Звук: " + (soundOn ? "вкл" : "выкл");
+    if (soundOn) beep();
+  });
+  $("#soundBtn").textContent = "🔔 Звук: " + (soundOn ? "вкл" : "выкл");
+
+  $("#productsBody").addEventListener("click", async (e) => {
+    const sw = e.target.closest("[data-stock]");
+    if (sw) { const p = state.products.find((x) => x.id === sw.dataset.stock); try { await api("/admin/api/product", { ...p, inStock: !p.inStock }); } catch (err) { toast(err.message); } return; }
+    const ed = e.target.closest("[data-edit]"); if (ed) return openProductModal(state.products.find((x) => x.id === ed.dataset.edit));
+    const del = e.target.closest("[data-del]");
+    if (del && confirm("Удалить товар?")) { try { await api("/admin/api/product/delete", { id: del.dataset.del }); } catch (err) { toast(err.message); } }
+  });
+  $("#productsBody").addEventListener("change", async (e) => {
+    const inp = e.target.closest("[data-price]"); if (!inp) return;
+    const p = state.products.find((x) => x.id === inp.dataset.price);
+    try { await api("/admin/api/product", { ...p, price: Number(inp.value) }); toast("Цена обновлена"); } catch (err) { toast(err.message); renderProducts(); }
+  });
+
+  $("#addProductBtn").addEventListener("click", () => openProductModal(null));
+
+  function openProductModal(p) {
+    const isNew = !p; p = p || { category: "liquids", brand: "", name: "", price: "", strengths: [0, 3, 6], inStock: true, icon: "💧" };
+    const bg = document.createElement("div"); bg.className = "modal-bg";
+    bg.innerHTML = `<form class="modal"><h3>${isNew ? "Новый товар" : "Редактирование"}</h3>
+      <label>Категория</label><select name="category"><option value="liquids">Жидкость</option><option value="cartridges">Картридж</option></select>
+      <label>Бренд</label><input name="brand" required value="${esc(p.brand)}">
+      <label>Название / вкус</label><input name="name" required value="${esc(p.name)}">
+      <label>Цена</label><input name="price" type="number" min="0.5" step="0.5" required value="${esc(p.price)}">
+      <label>Крепость, мг (через запятую; только для жидкостей)</label><input name="strengths" value="${esc((p.strengths || []).join(", "))}">
+      <label>Иконка (эмодзи)</label><input name="icon" maxlength="4" value="${esc(p.icon)}">
+      <div class="err" id="pErr"></div>
+      <div style="display:flex;gap:8px;margin-top:10px"><button class="btn primary" type="submit">Сохранить</button><button class="btn" type="button" id="pCancel">Отмена</button></div></form>`;
+    document.body.appendChild(bg);
+    const f = $("form", bg); f.category.value = p.category;
+    $("#pCancel", bg).onclick = () => bg.remove();
+    bg.addEventListener("mousedown", (e) => { if (e.target === bg) bg.remove(); });
+    f.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        await api("/admin/api/product", { id: p.id, inStock: p.inStock, category: f.category.value, brand: f.brand.value, name: f.name.value, price: Number(f.price.value), strengths: f.strengths.value, icon: f.icon.value });
+        bg.remove(); toast("Сохранено");
+      } catch (err) { $("#pErr", bg).textContent = err.message; }
+    });
+  }
+
+  $("#configForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const body = {}; for (const el of e.target.elements) if (el.name) body[el.name] = el.value;
+    try { await api("/admin/api/config", body); $("#cfgSaved").textContent = "✓ Сохранено"; setTimeout(() => ($("#cfgSaved").textContent = ""), 2500); } catch (err) { toast(err.message); }
+  });
+
+  // ── Вкладки ──
+  function switchTab(name) {
+    document.querySelectorAll("nav button").forEach((b) => b.classList.toggle("active", b.dataset.tab === name));
+    ["orders", "products", "settings"].forEach((t) => $("#tab-" + t).classList.toggle("hidden", t !== name));
+  }
+  document.querySelectorAll("nav button").forEach((b) => b.addEventListener("click", () => switchTab(b.dataset.tab)));
+
+  if (token) start();
+})();
+</script>
+</body>
+</html>

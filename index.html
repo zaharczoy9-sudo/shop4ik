@@ -1161,23 +1161,20 @@
 </head>
 <body>
   <div class="app" id="app">
-          const orderNumber = generateOrderNumber();
-      const payload = buildOrderPayload(orderNumber);
-      if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        payload.tgUser = tg.initDataUnsafe.user;
-      }
-      state.lastOrder = payload;
+    <header class="topbar">
+      <div class="topbar-left">
+        <button type="button" class="back-btn" id="headerBackBtn" aria-label="Назад" style="display:none;">←</button>
+        <div>
+          <h1 class="brand-title" id="shopTitle">МАГАЗИН</h1>
+          <div class="brand-subtitle">📍 Минск • <span id="headerManager">@username</span></div>
+        </div>
+      </div>
+      <button type="button" class="cart-trigger" id="openCartBtn" aria-label="Открыть корзину">
+        <span>🛒</span>
+        <span class="cart-badge" id="cartBadge">0</span>
+      </button>
+    </header>
 
-      console.log("ORDER_PAYLOAD:", JSON.stringify(payload, null, 2));
-
-      if (window.location.protocol !== "file:") {
-        fetch("/api/order", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        }).catch((err) => console.error("Order POST error:", err));
-      }
-    
     <main class="view active" id="viewCatalog">
       <div class="segment-tabs" id="categoryTabs" data-active="liquids">
         <div class="segment-indicator"></div>
@@ -2287,7 +2284,29 @@
       };
     }
 
-    function submitOrder() {
+    let isSubmitting = false;
+
+    // Отправка заказа на сервер. Возвращает { ok, orderNumber } или { ok:false, error, network }
+    async function postOrderToServer(payload) {
+      try {
+        const resp = await fetch("/api/order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            order: payload,
+            initData: isTelegramEnv && tg ? tg.initData : ""
+          })
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (resp.ok && data.ok) return { ok: true, orderNumber: data.orderNumber };
+        return { ok: false, error: data.error || "Не удалось отправить заказ", network: false };
+      } catch (err) {
+        return { ok: false, error: "Нет связи с сервером", network: true };
+      }
+    }
+
+    async function submitOrder() {
+      if (isSubmitting) return;
       if (state.cart.length === 0) return;
       if (!validateCheckout()) {
         const firstErr = document.querySelector(".field-error.visible");
@@ -2297,19 +2316,42 @@
         return;
       }
 
-      const orderNumber = generateOrderNumber();
+      isSubmitting = true;
+      const submitBtn = document.getElementById("footerSubmitOrderBtn");
+      if (submitBtn) submitBtn.disabled = true;
+      if (tg && tg.MainButton && typeof tg.MainButton.showProgress === "function") {
+        try { tg.MainButton.showProgress(); } catch (e) {}
+      }
+
+      let orderNumber = generateOrderNumber();
       const payload = buildOrderPayload(orderNumber);
-      state.lastOrder = payload;
 
-      console.log("ORDER_PAYLOAD:", JSON.stringify(payload, null, 2));
+      const result = await postOrderToServer(payload);
 
-      if (isTelegramEnv && tg && typeof tg.sendData === "function") {
+      isSubmitting = false;
+      if (submitBtn) submitBtn.disabled = false;
+      if (tg && tg.MainButton && typeof tg.MainButton.hideProgress === "function") {
+        try { tg.MainButton.hideProgress(); } catch (e) {}
+      }
+
+      if (result.ok) {
+        orderNumber = result.orderNumber || orderNumber;
+        payload.orderNumber = orderNumber;
+      } else if (result.network && isTelegramEnv && tg && typeof tg.sendData === "function") {
+        // Запасной путь: сервер недоступен, но мы внутри Telegram — отправляем через бота
         try {
           tg.sendData(JSON.stringify(payload));
         } catch (err) {
           console.error("Telegram sendData error:", err);
         }
+      } else {
+        const msg = "Заказ не отправлен: " + result.error + ". Попробуйте ещё раз.";
+        if (tg && typeof tg.showAlert === "function") tg.showAlert(msg);
+        else alert(msg);
+        return;
       }
+
+      state.lastOrder = payload;
 
       document.getElementById("successOrderNumber").textContent = `№ ${orderNumber}`;
       const deliveryDesc = payload.deliveryMethod === "pickup"
