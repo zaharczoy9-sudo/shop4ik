@@ -251,7 +251,46 @@ products.forEach((p) => {
 
 ---
 
-## 5. ЧЕКЛИСТ ВНЕДРЕНИЯ И ПРОВЕРКИ
+## 5. Исправления
+
+### 🔴 Критично: Лимит `readJson` для endpoint `/admin/api/product`
+**Файл:** `bot.js`, строка 692
+
+**Проблема:** Функция `readJson` имеет лимит по умолчанию 100 КБ:
+```js
+async function readJson(req, limit = 100 * 1024) { ... }
+```
+Но фото 2 МБ в base64 занимает ~2.7 МБ. При сохранении товара с фото запрос обрезался до 100 КБ, и поле `image` в JSON не попадало — фото не сохранялось.
+
+**Решение:** Указан явный лимит 10 МБ для endpoint `/admin/api/product`:
+```js
+const body = await readJson(req, 10 * 1024 * 1024); // до 10 МБ — фото в base64
+```
+
+### 🔴 Критично: Кнопка "Выбрать фото" на мобильных браузерах
+**Файл:** `admin.html`, строки 107-116 (CSS), строки 446-449 (HTML)
+
+**Проблема:** Использование `<button type="button">` внутри `<label>` не открывает диалог выбора файла на мобильных браузерах (Safari iOS, Android Chrome). Браузер игнорирует клик по вложенному элементу.
+
+**Решение:**
+- Кнопка заменена на `<span class="img-upload-trigger">`
+- `<input type="file">` должен быть прямым потомком `.img-upload-wrap` с `opacity:0` и `position:absolute`
+- Не использовать `display:none` на `<label>` — это также ломает выбор файла на мобильных
+
+```css
+.img-upload-wrap { position: relative; display: inline-block; }
+.img-upload-trigger { padding: 8px 14px; background: var(--gold-soft); color: var(--gold); border: 1px solid rgba(212,175,55,.35); border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.img-upload-trigger:hover { background: var(--gold); color: #090b0a; }
+.img-upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+```
+
+```html
+<label class="img-upload-wrap"><span class="img-upload-trigger">📸 Выбрать фото</span><input type="file" id="imgUpload" accept="image/png,image/jpeg,image/webp" class="img-upload-input"></label>
+```
+
+---
+
+## 6. ЧЕКЛИСТ ВНЕДРЕНИЯ И ПРОВЕРКИ
 
 ### Перед запуском в production
 
@@ -272,6 +311,9 @@ products.forEach((p) => {
   - [ ] Превью отображается при выборе
   - [ ] Удаление фото работает корректно
   - [ ] Сохранение товара с фото не вызывает ошибок
+  - [ ] **Кнопка "Выбрать фото" открывает диалог выбора на мобильных браузерах (Safari iOS, Android Chrome)**
+  - [ ] **Кнопка — `<span>`, а не `<button>` внутри `<label>`**
+  - [ ] **`<input type="file">` имеет `opacity:0` и `position:absolute` внутри `.img-upload-wrap`**
 
 - [ ] **Хранение данных:**
   - [ ] Data URL сохраняется в store.json

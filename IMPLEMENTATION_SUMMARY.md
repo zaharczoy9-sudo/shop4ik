@@ -109,8 +109,8 @@
 ### admin.html
 ```diff
 + .img-preview-box — контейнер для превью
-+ .img-upload-label input[type="file"] — скрытый file input
-+ .img-upload-trigger — кнопка выбора
++ .img-upload-wrap — обёртка с позиционируемым input[type="file"] (opacity:0)
++ .img-upload-trigger — span-кнопка выбора (не button!)
 + .img-remove — кнопка удаления
 + renderProducts() — показывает эскизы фото в таблице
 + openProductModal() — расширенная форма с загрузкой фото + валидация
@@ -122,7 +122,20 @@
 + DEFAULT_STORE.products[].image: null — новое поле для всех товаров
 + ensureStore() — миграция: добавляет image: null к старым товарам
 + POST /admin/api/product — принимает image (data URL)
++ readJson(req, 10 * 1024 * 1024) — лимит 10 МБ для endpoint с фото (photo in base64)
 ```
+
+### admin.html
+```diff
++ .img-preview-box — контейнер для превью
++ .img-upload-wrap — обёртка с позиционируемым input[type="file"] (opacity:0)
++ .img-upload-trigger — span-кнопка выбора (не button!)
++ .img-remove — кнопка удаления
++ renderProducts() — показывает эскизы фото в таблице
++ openProductModal() — расширенная форма с загрузкой фото + валидация
+```
+
+**Критично:** Кнопка "Выбрать фото" — это `<span class="img-upload-trigger">` с позиционируемым `<input type="file" class="img-upload-input">` внутри `.img-upload-wrap`. Использование `<button>` внутри `<label>` на мобильных браузерах (Safari iOS, Android Chrome) не открывает диалог выбора файла — браузер игнорирует клик по вложенному элементу. Решение: `<input type="file">` должен быть прямым потомком `.img-upload-wrap` с `opacity:0` и `position:absolute`, а не скрытым через `display:none` на `<label>`.
 
 ---
 
