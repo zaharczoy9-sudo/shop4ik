@@ -40,19 +40,19 @@ const DEFAULT_STORE = {
     managerContact: "@demovape_bot",
   },
   products: [
-    { id: "liq-podonki-1", category: "liquids", brand: "PODONKI", name: "Ледяной Гранат и Мята", price: 21, strengths: [0, 3, 6], inStock: true, icon: "🧊", image: null },
-    { id: "liq-podonki-2", category: "liquids", brand: "PODONKI", name: "Кислый Крыжовник", price: 22, strengths: [3, 6], inStock: true, icon: "🫐", image: null },
-    { id: "liq-podonki-3", category: "liquids", brand: "PODONKI", name: "Манговый Нектар", price: 20, strengths: [0, 3, 6], inStock: false, icon: "🥭", image: null },
-    { id: "liq-catswill-1", category: "liquids", brand: "Catswill", name: "Черничный Пирог", price: 19, strengths: [0, 3, 6], inStock: true, icon: "🥧", image: null },
-    { id: "liq-catswill-2", category: "liquids", brand: "Catswill", name: "Хвоя и Зелёное Яблоко", price: 24, strengths: [3, 6], inStock: true, icon: "🍏", image: null },
-    { id: "liq-hotspot-1", category: "liquids", brand: "Hotspot", name: "Спелый Персик и Личи", price: 23, strengths: [0, 3, 6], inStock: true, icon: "🍑", image: null },
-    { id: "liq-faff-1", category: "liquids", brand: "Faff", name: "Земляника со Сливками", price: 25, strengths: [3, 6], inStock: true, icon: "🍓", image: null },
-    { id: "liq-rm-1", category: "liquids", brand: "Rick & Morty", name: "Цитадельский Фрост", price: 16, strengths: [0, 3, 6], inStock: true, icon: "🧪", image: null },
-    { id: "cart-xros-06", category: "cartridges", brand: "XROS", name: "Картридж 0.6 Ом (3 мл)", price: 14, strengths: null, inStock: true, icon: "🔋", image: null },
-    { id: "cart-xros-08", category: "cartridges", brand: "XROS", name: "Картридж 0.8 Ом (2 мл)", price: 14, strengths: null, inStock: true, icon: "🔋", image: null },
-    { id: "cart-vthru-07", category: "cartridges", brand: "V.THRU / VMATE", name: "Картридж VMATE Top Fill 0.7 Ом", price: 15, strengths: null, inStock: true, icon: "⚡", image: null },
-    { id: "cart-aegis-04", category: "cartridges", brand: "AEGIS", name: "Испаритель B-Series 0.4 Ом", price: 14, strengths: null, inStock: true, icon: "🛡️", image: null },
-    { id: "cart-pasito-06", category: "cartridges", brand: "PASITO", name: "Картридж Pasito II / Mini 0.6 Ом", price: 15, strengths: null, inStock: true, icon: "🎛️", image: null },
+    { id: "liq-podonki-1", category: "liquids", brand: "PODONKI", name: "Ледяной Гранат и Мята", price: 21, strengths: [0, 3, 6], inStock: true, icon: "🧊" },
+    { id: "liq-podonki-2", category: "liquids", brand: "PODONKI", name: "Кислый Крыжовник", price: 22, strengths: [3, 6], inStock: true, icon: "🫐" },
+    { id: "liq-podonki-3", category: "liquids", brand: "PODONKI", name: "Манговый Нектар", price: 20, strengths: [0, 3, 6], inStock: false, icon: "🥭" },
+    { id: "liq-catswill-1", category: "liquids", brand: "Catswill", name: "Черничный Пирог", price: 19, strengths: [0, 3, 6], inStock: true, icon: "🥧" },
+    { id: "liq-catswill-2", category: "liquids", brand: "Catswill", name: "Хвоя и Зелёное Яблоко", price: 24, strengths: [3, 6], inStock: true, icon: "🍏" },
+    { id: "liq-hotspot-1", category: "liquids", brand: "Hotspot", name: "Спелый Персик и Личи", price: 23, strengths: [0, 3, 6], inStock: true, icon: "🍑" },
+    { id: "liq-faff-1", category: "liquids", brand: "Faff", name: "Земляника со Сливками", price: 25, strengths: [3, 6], inStock: true, icon: "🍓" },
+    { id: "liq-rm-1", category: "liquids", brand: "Rick & Morty", name: "Цитадельский Фрост", price: 16, strengths: [0, 3, 6], inStock: true, icon: "🧪" },
+    { id: "cart-xros-06", category: "cartridges", brand: "XROS", name: "Картридж 0.6 Ом (3 мл)", price: 14, strengths: null, inStock: true, icon: "🔋" },
+    { id: "cart-xros-08", category: "cartridges", brand: "XROS", name: "Картридж 0.8 Ом (2 мл)", price: 14, strengths: null, inStock: true, icon: "🔋" },
+    { id: "cart-vthru-07", category: "cartridges", brand: "V.THRU / VMATE", name: "Картридж VMATE Top Fill 0.7 Ом", price: 15, strengths: null, inStock: true, icon: "⚡" },
+    { id: "cart-aegis-04", category: "cartridges", brand: "AEGIS", name: "Испаритель B-Series 0.4 Ом", price: 14, strengths: null, inStock: true, icon: "🛡️" },
+    { id: "cart-pasito-06", category: "cartridges", brand: "PASITO", name: "Картридж Pasito II / Mini 0.6 Ом", price: 15, strengths: null, inStock: true, icon: "🎛️" },
   ],
   orders: [],
 };
@@ -71,6 +71,29 @@ function statusKeyFromLabel(label) {
   return found ? found[0] : "new";
 }
 
+// Остатки: stock — количество штук. inStock всегда вычисляется из stock (stock > 0).
+const DEFAULT_STOCK = 10; // стартовый остаток для товаров, у которых его ещё нет
+const LOW_STOCK = 3; // порог «заканчивается»
+const MAX_STOCK = 99999;
+
+function parseStock(v) {
+  const n = Math.floor(Number(v));
+  if (!Number.isFinite(n)) return null;
+  return Math.min(MAX_STOCK, Math.max(0, n));
+}
+
+function applyStock(prod, n) {
+  prod.stock = Math.min(MAX_STOCK, Math.max(0, Math.floor(n)));
+  prod.inStock = prod.stock > 0;
+}
+
+// Старые данные (без stock) переносим: был в наличии — DEFAULT_STOCK шт., не был — 0
+function normalizeProduct(p) {
+  const s = parseStock(p.stock);
+  applyStock(p, s === null ? (p.inStock === false ? 0 : DEFAULT_STOCK) : s);
+  return p;
+}
+
 function ensureStore() {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
   if (!fs.existsSync(STORE_FILE)) {
@@ -83,20 +106,16 @@ function ensureStore() {
       o.status = STATUSES[o.statusKey];
       return o;
     });
-    
-    // Backward compatibility: ensure all products have image field (null if missing)
-    const products = Array.isArray(parsed.products) ? parsed.products : DEFAULT_STORE.products;
-    products.forEach((p) => {
-      if (!("image" in p)) p.image = null;
-    });
-    
+    const products = (Array.isArray(parsed.products) ? parsed.products : JSON.parse(JSON.stringify(DEFAULT_STORE.products))).map(normalizeProduct);
     return {
       config: { ...DEFAULT_STORE.config, ...(parsed.config || {}) },
       products,
       orders,
     };
   } catch (e) {
-    return JSON.parse(JSON.stringify(DEFAULT_STORE));
+    const fresh = JSON.parse(JSON.stringify(DEFAULT_STORE));
+    fresh.products.forEach(normalizeProduct);
+    return fresh;
   }
 }
 
@@ -351,6 +370,7 @@ function buildOrder(raw, ctx) {
   if (raw.items.length > 50) return { error: "Слишком много позиций" };
 
   const items = [];
+  const demand = {}; // сколько штук каждого товара просит клиент (одна позиция может быть в разных крепостях)
   let subtotal = 0;
   let paidLiquids = 0;
   let giftId = null;
@@ -365,6 +385,10 @@ function buildOrder(raw, ctx) {
     if (!prod.inStock) return { error: `Нет в наличии: ${prod.name}` };
     const qty = Math.floor(Number(it.qty));
     if (!Number.isFinite(qty) || qty < 1 || qty > 99) return { error: "Некорректное количество" };
+    demand[prod.id] = (demand[prod.id] || 0) + qty;
+    if (demand[prod.id] > prod.stock) {
+      return { error: `Недостаточно товара «${prod.name}»: осталось ${prod.stock} шт.` };
+    }
     let strength = null;
     if (Array.isArray(prod.strengths) && prod.strengths.length > 0) {
       strength = prod.strengths.includes(Number(it.strength)) ? Number(it.strength) : prod.strengths[0];
@@ -375,11 +399,13 @@ function buildOrder(raw, ctx) {
   }
   if (items.length === 0) return { error: "Корзина пуста" };
 
-  // Подарок: только если набрано нужное число жидкостей
+  // Подарок: только если набрано нужное число жидкостей и после покупки остался хотя бы 1 шт.
   const needed = Math.max(1, Number(store.config.liquidsForGift) || 2);
   if (giftId && paidLiquids >= needed) {
-    let gift = store.products.find((p) => p.id === giftId && p.category === "cartridges" && p.inStock);
-    if (!gift) gift = store.products.find((p) => p.id === store.config.giftProductId && p.inStock);
+    const freeLeft = (p) => p.stock - (demand[p.id] || 0) >= 1;
+    let gift = store.products.find((p) => p.id === giftId && p.category === "cartridges" && freeLeft(p));
+    if (!gift) gift = store.products.find((p) => p.id === store.config.giftProductId && freeLeft(p));
+    if (!gift) gift = store.products.find((p) => p.category === "cartridges" && freeLeft(p));
     if (gift) {
       items.push({ id: gift.id, name: gift.name, brand: gift.brand, strength: null, qty: 1, price: 0, isGift: true });
     }
@@ -437,11 +463,20 @@ async function createOrder(raw, ctx) {
   if (built.error) return { ok: false, error: built.error };
   const order = built.order;
 
+  // Списываем остаток (синхронно с проверкой в buildOrder, поэтому гонок между заказами нет)
+  const lowNow = reserveStock(order);
+  order.stockReserved = true;
+
   store.orders.unshift(order);
   store.orders = store.orders.slice(0, 500);
   saveStore();
 
   broadcast("order_new", order); // мгновенное уведомление в веб-админке
+  broadcast("catalog", { products: store.products }); // таблица остатков обновится у всех
+  if (lowNow.length) {
+    broadcast("low_stock", { products: lowNow.map((p) => ({ id: p.id, name: p.name, brand: p.brand, stock: p.stock })) });
+    notifyLowStock(lowNow).catch((e) => console.error("low stock notify:", e));
+  }
   console.log(`🆕 Заказ №${order.orderNumber} — ${order.customerName}, ${order.total} ${order.currency} [${order.source}]`);
 
   // Telegram: менеджеру + подтверждение клиенту (не блокируем ответ клиенту ожиданием Telegram)
@@ -459,10 +494,69 @@ async function createOrder(raw, ctx) {
   return { ok: true, order };
 }
 
+// Списать остаток по заказу. Возвращает товары, у которых осталось мало (<= LOW_STOCK)
+function reserveStock(order) {
+  const low = [];
+  for (const it of order.items || []) {
+    const prod = store.products.find((p) => p.id === it.id);
+    if (!prod) continue;
+    const before = prod.stock;
+    applyStock(prod, prod.stock - it.qty);
+    if (before > LOW_STOCK && prod.stock <= LOW_STOCK && !low.includes(prod)) low.push(prod);
+  }
+  return low;
+}
+
+// Вернуть остаток по заказу (при отмене)
+function releaseStock(order) {
+  for (const it of order.items || []) {
+    const prod = store.products.find((p) => p.id === it.id);
+    if (prod) applyStock(prod, prod.stock + it.qty);
+  }
+}
+
+// Хватает ли сейчас остатка, чтобы вернуть отменённый заказ в работу
+function canReserve(order) {
+  const need = {};
+  for (const it of order.items || []) need[it.id] = (need[it.id] || 0) + it.qty;
+  for (const [id, qty] of Object.entries(need)) {
+    const prod = store.products.find((p) => p.id === id);
+    if (prod && prod.stock < qty) return `«${prod.name}»: на складе ${prod.stock} шт., нужно ${qty}`;
+  }
+  return null;
+}
+
+async function notifyLowStock(products) {
+  if (!BOT_TOKEN) return;
+  const lines = products
+    .map((p) => `• ${esc(p.brand)} — ${esc(p.name)}: ${p.stock === 0 ? "<b>закончился</b>" : `осталось <b>${p.stock}</b> шт.`}`)
+    .join("\n");
+  for (const chatId of notifyTargets()) {
+    await tgApi("sendMessage", { chat_id: chatId, text: `⚠️ <b>Заканчивается товар</b>\n${lines}`, parse_mode: "HTML" });
+  }
+}
+
+// Возвращает { order } или { error }
 async function setOrderStatus(orderNumber, key) {
   const order = store.orders.find((o) => String(o.orderNumber) === String(orderNumber));
-  if (!order || !STATUSES[key]) return null;
-  if (order.statusKey === key) return order;
+  if (!order || !STATUSES[key]) return { error: "Заказ не найден" };
+  if (order.statusKey === key) return { order };
+
+  const wasCancelled = order.statusKey === "cancelled";
+  if (key === "cancelled" && order.stockReserved === true) {
+    // Отмена возвращает товар на склад
+    releaseStock(order);
+    order.stockReserved = false;
+    broadcast("catalog", { products: store.products });
+  } else if (wasCancelled && key !== "cancelled" && order.stockReserved === false) {
+    // Возврат отменённого заказа в работу снова резервирует товар
+    const problem = canReserve(order);
+    if (problem) return { error: `Недостаточно товара ${problem}` };
+    reserveStock(order);
+    order.stockReserved = true;
+    broadcast("catalog", { products: store.products });
+  }
+
   order.statusKey = key;
   order.status = STATUSES[key];
   saveStore();
@@ -474,7 +568,26 @@ async function setOrderStatus(orderNumber, key) {
       text: `Заказ №${order.orderNumber}: ${STATUSES[key]}`,
     });
   }
-  return order;
+  return { order };
+}
+
+// Ручное изменение остатка из админки или Telegram. Задайте stock (точное число) или delta (+/-)
+function changeStock(id, { stock, delta }) {
+  const prod = store.products.find((p) => p.id === id);
+  if (!prod) return { error: "Товар не найден" };
+  let next;
+  if (stock !== undefined && stock !== null && stock !== "") {
+    next = parseStock(stock);
+    if (next === null) return { error: "Количество должно быть числом" };
+  } else {
+    const d = Math.floor(Number(delta));
+    if (!Number.isFinite(d)) return { error: "Некорректное изменение" };
+    next = Math.min(MAX_STOCK, Math.max(0, prod.stock + d));
+  }
+  applyStock(prod, next);
+  saveStore();
+  broadcast("catalog", { products: store.products });
+  return { product: prod };
 }
 
 function makeDemoOrder() {
@@ -483,9 +596,10 @@ function makeDemoOrder() {
   const carts = inStock.filter((p) => p.category === "cartridges");
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
   const items = [];
-  for (let i = 0; i < 2; i++) {
-    const p = pick(liquids);
-    items.push({ id: p.id, qty: 1 + Math.floor(Math.random() * 2), strength: pick(p.strengths || [null]) });
+  // Берём разные жидкости и не больше, чем есть на складе
+  const shuffled = [...liquids].sort(() => Math.random() - 0.5).slice(0, 2);
+  for (const p of shuffled) {
+    items.push({ id: p.id, qty: Math.min(p.stock, 1 + Math.floor(Math.random() * 2)), strength: pick(p.strengths || [null]) });
   }
   if (carts.length && Math.random() > 0.4) items.push({ id: pick(carts).id, qty: 1 });
   const gift = carts.find((p) => p.id === store.config.giftProductId) || carts[0];
@@ -512,10 +626,13 @@ function slugify(s) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
-    .slice(0, 30);
+    .slice(0, 16); // короче, чтобы id влезал в callback_data Telegram (лимит 64 байта)
 }
 
-function upsertProduct(input) {
+function upsertProduct(rawInput) {
+  // Для существующего товара недостающие поля берём из базы. Так правка цены не затрёт свежий остаток.
+  const current = rawInput.id ? store.products.find((p) => p.id === rawInput.id) : null;
+  const input = current ? { ...current, ...rawInput, stock: rawInput.stock } : rawInput;
   const category = input.category === "cartridges" ? "cartridges" : "liquids";
   const brand = clip(input.brand, 60);
   const name = clip(input.name, 100);
@@ -531,43 +648,31 @@ function upsertProduct(input) {
     strengths = arr.length ? [...new Set(arr)].sort((a, b) => a - b) : [0, 3, 6];
   }
 
-  // Validate image if provided (data URL format)
-  let image = null;
-  if (input.image && typeof input.image === "string") {
-    if (input.image.startsWith("data:image/")) {
-      // Rough size check: data URLs are ~1.33x larger than binary due to base64 encoding
-      // 2 MB binary ≈ 2.67 MB base64 data URL
-      if (input.image.length > 3.5 * 1024 * 1024) {
-        return { error: "Изображение слишком большое (макс. 2 МБ)" };
-      }
-      // Validate MIME type
-      if (!input.image.match(/^data:image\/(png|jpeg|webp);base64,/)) {
-        return { error: "Поддерживаются только PNG, JPEG, WebP" };
-      }
-      image = input.image;
-    }
-  }
-
   const data = {
     category,
     brand,
     name,
     price,
     strengths,
-    inStock: input.inStock !== false,
     icon: clip(input.icon, 8) || (category === "liquids" ? "💧" : "🔋"),
-    image: image || null, // Store image as data URL or null for backward compatibility
   };
 
   const existing = input.id ? store.products.find((p) => p.id === input.id) : null;
+  const given = parseStock(input.stock);
+  if (input.stock !== undefined && input.stock !== null && input.stock !== "" && given === null) {
+    return { error: "Количество должно быть числом" };
+  }
+
   if (existing) {
     Object.assign(existing, data);
+    if (given !== null) applyStock(existing, given);
     saveStore();
     return { product: existing };
   }
   let id = `${category === "liquids" ? "liq" : "cart"}-${slugify(brand) || "x"}-${slugify(name) || Date.now()}`;
   while (store.products.some((p) => p.id === id)) id += "-" + Math.floor(Math.random() * 100);
   const product = { id, ...data };
+  applyStock(product, given === null ? DEFAULT_STOCK : given);
   store.products.push(product);
   saveStore();
   return { product };
@@ -678,9 +783,16 @@ const server = http.createServer(async (req, res) => {
 
       if (p === "/admin/api/order/status" && req.method === "POST") {
         const body = await readJson(req, 4096);
-        const order = await setOrderStatus(body.orderNumber, body.status);
-        if (!order) return sendJson(res, 404, { ok: false, error: "Заказ не найден" });
-        return sendJson(res, 200, { ok: true, order });
+        const r = await setOrderStatus(body.orderNumber, body.status);
+        if (r.error) return sendJson(res, r.error === "Заказ не найден" ? 404 : 409, { ok: false, error: r.error });
+        return sendJson(res, 200, { ok: true, order: r.order });
+      }
+
+      if (p === "/admin/api/stock" && req.method === "POST") {
+        const body = await readJson(req, 4096);
+        const r = changeStock(body.id, { stock: body.stock, delta: body.delta });
+        if (r.error) return sendJson(res, 400, { ok: false, error: r.error });
+        return sendJson(res, 200, { ok: true, product: r.product });
       }
 
       if (p === "/admin/api/test-order" && req.method === "POST") {
@@ -690,7 +802,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       if (p === "/admin/api/product" && req.method === "POST") {
-        const body = await readJson(req, 10 * 1024 * 1024); // до 10 МБ — фото в base64
+        const body = await readJson(req);
         const r = upsertProduct(body);
         if (r.error) return sendJson(res, 400, { ok: false, error: r.error });
         broadcast("catalog", { products: store.products });
@@ -784,45 +896,57 @@ async function handleCallback(cb) {
   // Кнопки статуса заказа: ord:12345:accepted
   if (data.startsWith("ord:")) {
     const [, orderNumber, statusKey] = data.split(":");
-    const order = await setOrderStatus(orderNumber, statusKey);
+    const r = await setOrderStatus(orderNumber, statusKey);
     await tgApi("answerCallbackQuery", {
       callback_query_id: cb.id,
-      text: order ? `Статус №${orderNumber}: ${STATUSES[statusKey]}` : "Заказ не найден",
+      text: r.order ? `Статус №${orderNumber}: ${STATUSES[statusKey]}` : r.error,
+      show_alert: Boolean(r.error),
     });
     return;
   }
 
-  // Переключение наличия товара: stock:liq-podonki-1
-  if (data.startsWith("stock:")) {
-    const pid = data.slice("stock:".length);
-    const prod = store.products.find((x) => x.id === pid);
-    if (prod) {
-      prod.inStock = !prod.inStock;
-      saveStore();
-      broadcast("catalog", { products: store.products });
-      await sendStockMenu(chatId, messageId);
-    }
+  // Изменение остатка: qty:liq-podonki-1:-1 / qty:liq-podonki-1:+1
+  if (data.startsWith("qty:")) {
+    const [, pid, d] = data.split(":");
+    const r = changeStock(pid, { delta: Number(d) });
+    if (r.product) await sendStockMenu(chatId, messageId);
     await tgApi("answerCallbackQuery", {
       callback_query_id: cb.id,
-      text: prod ? `${prod.name}: ${prod.inStock ? "в наличии" : "нет в наличии"}` : "Товар не найден",
+      text: r.product ? `${r.product.name}: ${r.product.stock} шт.` : r.error,
     });
+    return;
+  }
+
+  // Кнопки старого меню (stock:ID) или подпись товара (noop) — просто обновляем меню
+  if (data.startsWith("stock:") || data === "noop") {
+    await sendStockMenu(chatId, messageId);
+    await tgApi("answerCallbackQuery", { callback_query_id: cb.id });
   }
 }
 
+function stockIcon(pr) {
+  return pr.stock === 0 ? "🔴" : pr.stock <= LOW_STOCK ? "🟡" : "🟢";
+}
+
 async function sendStockMenu(chatId, editMessageId = null) {
-  const rows = store.products.map((pr) => [
-    {
-      text: `${pr.inStock ? "🟢" : "🔴"} ${pr.brand} — ${pr.name} (${pr.price} ${store.config.currency})`,
-      callback_data: `stock:${pr.id}`,
-    },
-  ]);
+  // На каждый товар одна строка: [−1] [название · остаток] [+1]
+  const rows = store.products.map((pr) => {
+    const label = `${stockIcon(pr)} ${pr.name}`.slice(0, 24) + ` · ${pr.stock}`;
+    return [
+      { text: "➖", callback_data: `qty:${pr.id}:-1` },
+      { text: label, callback_data: "noop" },
+      { text: "➕", callback_data: `qty:${pr.id}:+1` },
+    ];
+  });
 
   const payload = {
     chat_id: chatId,
     text:
-      "🛠 <b>Управление наличием товаров</b>\n" +
-      "Нажмите на товар, чтобы переключить статус (🟢 в наличии / 🔴 нет в наличии).\n" +
-      "Сменить цену: <code>/price ID_ТОВАРА НОВАЯ_ЦЕНА</code>" +
+      "🛠 <b>Остатки товаров</b>\n" +
+      "Кнопками ➖ / ➕ меняйте количество на 1 (🟢 много, 🟡 заканчивается, 🔴 нет).\n" +
+      "Точное число: <code>/stock ID_ТОВАРА КОЛИЧЕСТВО</code>\n" +
+      "Сменить цену: <code>/price ID_ТОВАРА НОВАЯ_ЦЕНА</code>\n" +
+      "Список ID: /products" +
       (WEBAPP_URL ? `\n\n🖥 Полная веб-админка: ${esc(WEBAPP_URL.replace(/\/$/, ""))}/admin` : ""),
     parse_mode: "HTML",
     reply_markup: { inline_keyboard: rows },
@@ -906,6 +1030,35 @@ async function handleMessage(msg) {
       text: `📋 <b>Последние заказы:</b>\n\n${list}`,
       parse_mode: "HTML",
     });
+    return;
+  }
+
+  // /stock — меню остатков; /stock ID 25 — задать точное число; /stock ID +5 / -2 — изменить на N
+  if (text === "/stock" || text.startsWith("/stock ")) {
+    if (!isAdmin(userId)) return;
+    const parts = text.split(/\s+/);
+    if (parts.length === 1) {
+      await sendStockMenu(chatId);
+      return;
+    }
+    const arg = parts[2] || "";
+    const isDelta = /^[+-]\d+$/.test(arg);
+    const r = changeStock(parts[1], isDelta ? { delta: Number(arg) } : { stock: arg });
+    await tgApi("sendMessage", {
+      chat_id: chatId,
+      text: r.product
+        ? `✅ ${r.product.brand} — ${r.product.name}: теперь ${r.product.stock} шт.`
+        : `${r.error}. Формат: /stock ID_ТОВАРА 25 (или +5 / -2). Список ID: /products`,
+    });
+    return;
+  }
+
+  if (text === "/products") {
+    if (!isAdmin(userId)) return;
+    const list = store.products
+      .map((pr) => `${stockIcon(pr)} <code>${esc(pr.id)}</code> — ${esc(pr.brand)} ${esc(pr.name)}: ${pr.stock} шт., ${pr.price} ${esc(store.config.currency)}`)
+      .join("\n");
+    await tgApi("sendMessage", { chat_id: chatId, text: `📦 <b>Товары</b>\n\n${list}`, parse_mode: "HTML" });
     return;
   }
 

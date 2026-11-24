@@ -96,24 +96,24 @@
   td input { padding: 6px 8px; width: 80px; }
   tr:last-child td { border-bottom: 0; }
   .tbl-wrap { overflow-x: auto; }
-  .switch { width: 42px; height: 24px; border-radius: 999px; background: #2a312d; border: 0; position: relative; transition: .2s; }
-  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: .2s; }
-  .switch.on { background: var(--green); }
-  .switch.on::after { left: 21px; }
+  .qty { display: inline-flex; align-items: center; gap: 4px; }
+  .qty button { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--elev); font-size: 18px; line-height: 1; padding: 0; }
+  .qty button:hover { background: #1b221e; }
+  td .qty input { width: 64px; text-align: center; padding: 6px 4px; font-weight: 600; }
+  .qty input::-webkit-outer-spin-button, .qty input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .qty input[type=number] { -moz-appearance: textfield; }
+  .qty.low input { border-color: rgba(245,158,11,.6); color: #fbbf24; }
+  .qty.zero input { border-color: rgba(239,68,68,.6); color: #f87171; }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; margin-left: 6px; vertical-align: middle; }
+  .tag.low { background: rgba(245,158,11,.15); color: #fbbf24; }
+  .tag.zero { background: var(--red-soft); color: #f87171; }
+  .pstats { display: flex; gap: 14px; flex-wrap: wrap; color: var(--text2); font-size: 13px; margin: -4px 0 12px; }
+  .pstats b { color: var(--text); }
+  .toast.warn { border-color: #f59e0b; }
+  .toast.warn b { color: #fbbf24; }
 
   .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0 16px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 8px 18px 18px; }
   .form-grid .wide { grid-column: 1 / -1; }
-
-  /* Image upload preview */
-  .img-preview-box { width: 100%; background: var(--input); border: 2px dashed var(--border); border-radius: 12px; padding: 16px; text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center; }
-  .img-preview-box.has-image { border-style: solid; border-color: var(--gold); }
-  .img-preview { width: 100%; max-width: 160px; height: 160px; object-fit: cover; border-radius: 10px; }
-  .img-upload-wrap { position: relative; display: inline-block; }
-  .img-upload-trigger { padding: 8px 14px; background: var(--gold-soft); color: var(--gold); border: 1px solid rgba(212,175,55,.35); border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
-  .img-upload-trigger:hover { background: var(--gold); color: #090b0a; }
-  .img-upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-  .img-remove { padding: 6px 10px; background: var(--red-soft); color: #f87171; border: 1px solid rgba(239,68,68,.35); border-radius: 10px; font-size: 12px; cursor: pointer; }
-  .img-status { font-size: 12px; color: var(--muted); }
 
   .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: grid; place-items: center; padding: 16px; z-index: 50; }
   .modal { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 20px; width: 100%; max-width: 440px; max-height: 90vh; overflow: auto; }
@@ -168,8 +168,9 @@
         <span class="spacer" style="flex:1"></span>
         <button class="btn primary" id="addProductBtn">➕ Добавить товар</button>
       </div>
+      <div class="pstats" id="pstats"></div>
       <div class="tbl-wrap"><table>
-        <thead><tr><th></th><th>Товар</th><th>Категория</th><th>Крепость</th><th>Цена</th><th>В наличии</th><th></th></tr></thead>
+        <thead><tr><th></th><th>Товар</th><th>Категория</th><th>Крепость</th><th>Цена</th><th>Остаток, шт.</th><th></th></tr></thead>
         <tbody id="productsBody"></tbody>
       </table></div>
     </section>
@@ -265,6 +266,15 @@
       const i = state.orders.findIndex((x) => x.orderNumber === o.orderNumber);
       if (i >= 0) state.orders[i] = o; else state.orders.unshift(o);
       renderOrders(); renderBadge();
+    });
+    es.addEventListener("low_stock", (e) => {
+      const list = JSON.parse(e.data).products;
+      const t = document.createElement("div");
+      t.className = "toast warn";
+      t.innerHTML = `<b>⚠️ Заканчивается товар</b>` + list.map((p) => `<div>${esc(p.brand)} — ${esc(p.name)}: ${p.stock === 0 ? "закончился" : "осталось " + esc(p.stock) + " шт."}</div>`).join("");
+      t.addEventListener("click", () => { t.remove(); switchTab("products"); });
+      $("#toasts").appendChild(t);
+      setTimeout(() => t.remove(), 12000);
     });
     es.addEventListener("catalog", (e) => { state.products = JSON.parse(e.data).products; renderProducts(); renderGiftSelect(); });
     es.addEventListener("config", (e) => { state.config = JSON.parse(e.data).config; renderConfig(); renderHeader(); });
@@ -367,21 +377,36 @@
     setTimeout(() => fresh.clear(), 2500);
   }
 
+  const LOW_STOCK = 3;
+  let productsDirty = false; // пришло обновление, пока человек вводил число — перерисуем после ввода
+
   function renderProducts() {
+    // не перерисовываем таблицу под руками: иначе введённое число пропадёт
+    const ae = document.activeElement;
+    if (ae && ae.matches && ae.matches("#productsBody input")) { productsDirty = true; return; }
+    productsDirty = false;
+
     const cur = esc(state.config.currency || "");
-    $("#productsBody").innerHTML = state.products.map((p) => `
+    const zero = state.products.filter((p) => p.stock === 0).length;
+    const low = state.products.filter((p) => p.stock > 0 && p.stock <= LOW_STOCK).length;
+    $("#pstats").innerHTML = `<span>Позиций: <b>${state.products.length}</b></span><span>Всего штук: <b>${state.products.reduce((s, p) => s + p.stock, 0)}</b></span><span>Заканчивается: <b style="color:#fbbf24">${low}</b></span><span>Нет в наличии: <b style="color:#f87171">${zero}</b></span>`;
+
+    $("#productsBody").innerHTML = state.products.map((p) => {
+      const cls = p.stock === 0 ? "zero" : p.stock <= LOW_STOCK ? "low" : "";
+      const tag = p.stock === 0 ? `<span class="tag zero">нет в наличии</span>` : p.stock <= LOW_STOCK ? `<span class="tag low">заканчивается</span>` : "";
+      return `
       <tr>
-        <td style="font-size:22px;width:60px;padding:8px;">
-          ${p.image ? `<img src="${esc(p.image)}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;" alt="${esc(p.name)}">` : `<span>${esc(p.icon)}</span>`}
-        </td>
+        <td style="font-size:22px">${esc(p.icon)}</td>
         <td><b>${esc(p.brand)}</b><br><span class="src">${esc(p.name)}</span></td>
         <td>${p.category === "liquids" ? "Жидкость" : "Картридж"}</td>
         <td>${p.strengths ? esc(p.strengths.join(" / ")) + " мг" : "—"}</td>
         <td><input type="number" min="0" step="0.5" value="${esc(p.price)}" data-price="${esc(p.id)}"> ${cur}</td>
-        <td><button class="switch ${p.inStock ? "on" : ""}" data-stock="${esc(p.id)}" aria-label="В наличии"></button></td>
+        <td style="white-space:nowrap"><div class="qty ${cls}"><button data-qdec="${esc(p.id)}" aria-label="Уменьшить">−</button><input type="number" min="0" step="1" value="${esc(p.stock)}" data-stockinput="${esc(p.id)}" aria-label="Остаток"><button data-qinc="${esc(p.id)}" aria-label="Увеличить">+</button></div>${tag}</td>
         <td style="white-space:nowrap"><button class="btn sm" data-edit="${esc(p.id)}">✏️</button> <button class="btn sm red" data-del="${esc(p.id)}">🗑</button></td>
-      </tr>`).join("");
+      </tr>`;
+    }).join("");
   }
+  document.addEventListener("focusout", () => { if (productsDirty) setTimeout(renderProducts, 0); });
 
   function renderConfig() {
     const f = $("#configForm");
@@ -403,7 +428,7 @@
   $("#orders").addEventListener("click", async (e) => {
     const b = e.target.closest("[data-status]"); if (!b) return;
     b.disabled = true;
-    try { await api("/admin/api/order/status", { orderNumber: b.dataset.num, status: b.dataset.status }); } catch (err) { toast(err.message); }
+    try { await api("/admin/api/order/status", { orderNumber: b.dataset.num, status: b.dataset.status }); } catch (err) { toast(err.message); b.disabled = false; }
   });
 
   $("#testBtn").addEventListener("click", async () => {
@@ -418,141 +443,58 @@
   $("#soundBtn").textContent = "🔔 Звук: " + (soundOn ? "вкл" : "выкл");
 
   $("#productsBody").addEventListener("click", async (e) => {
-    const sw = e.target.closest("[data-stock]");
-    if (sw) { const p = state.products.find((x) => x.id === sw.dataset.stock); try { await api("/admin/api/product", { ...p, inStock: !p.inStock }); } catch (err) { toast(err.message); } return; }
+    const dec = e.target.closest("[data-qdec]"), inc = e.target.closest("[data-qinc]");
+    if (dec || inc) {
+      const id = (dec || inc).dataset.qdec || (dec || inc).dataset.qinc;
+      try { await api("/admin/api/stock", { id, delta: inc ? 1 : -1 }); } catch (err) { toast(err.message); }
+      return;
+    }
     const ed = e.target.closest("[data-edit]"); if (ed) return openProductModal(state.products.find((x) => x.id === ed.dataset.edit));
     const del = e.target.closest("[data-del]");
     if (del && confirm("Удалить товар?")) { try { await api("/admin/api/product/delete", { id: del.dataset.del }); } catch (err) { toast(err.message); } }
   });
   $("#productsBody").addEventListener("change", async (e) => {
+    const sinp = e.target.closest("[data-stockinput]");
+    if (sinp) {
+      const raw = sinp.value.trim();
+      sinp.blur(); // после снятия фокуса таблица обновится с актуальными цветами
+      try { await api("/admin/api/stock", { id: sinp.dataset.stockinput, stock: raw }); toast("Остаток обновлён"); } catch (err) { toast(err.message); productsDirty = false; renderProducts(); }
+      return;
+    }
     const inp = e.target.closest("[data-price]"); if (!inp) return;
-    const p = state.products.find((x) => x.id === inp.dataset.price);
-    try { await api("/admin/api/product", { ...p, price: Number(inp.value) }); toast("Цена обновлена"); } catch (err) { toast(err.message); renderProducts(); }
+    inp.blur();
+    // шлём только цену: остальные поля сервер возьмёт из базы, остаток не затрётся
+    try { await api("/admin/api/product", { id: inp.dataset.price, price: Number(inp.value) }); toast("Цена обновлена"); } catch (err) { toast(err.message); productsDirty = false; renderProducts(); }
   });
+  // Enter в поле остатка/цены сразу применяет значение
+  $("#productsBody").addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.matches("input")) e.target.blur(); });
 
   $("#addProductBtn").addEventListener("click", () => openProductModal(null));
 
   function openProductModal(p) {
-    const isNew = !p; p = p || { category: "liquids", brand: "", name: "", price: "", strengths: [0, 3, 6], inStock: true, icon: "💧", image: null };
-    let imageData = p.image || null;
+    const isNew = !p; p = p || { category: "liquids", brand: "", name: "", price: "", strengths: [0, 3, 6], stock: 10, icon: "💧" };
     const bg = document.createElement("div"); bg.className = "modal-bg";
     bg.innerHTML = `<form class="modal"><h3>${isNew ? "Новый товар" : "Редактирование"}</h3>
       <label>Категория</label><select name="category"><option value="liquids">Жидкость</option><option value="cartridges">Картридж</option></select>
       <label>Бренд</label><input name="brand" required value="${esc(p.brand)}">
       <label>Название / вкус</label><input name="name" required value="${esc(p.name)}">
       <label>Цена</label><input name="price" type="number" min="0.5" step="0.5" required value="${esc(p.price)}">
+      <label>Количество на складе, шт.</label><input name="stock" type="number" min="0" step="1" required value="${esc(p.stock)}">
       <label>Крепость, мг (через запятую; только для жидкостей)</label><input name="strengths" value="${esc((p.strengths || []).join(", "))}">
-      <label>Иконка / Фото товара</label>
-      <div class="img-preview-box ${imageData ? "has-image" : ""}">
-        ${imageData ? `<img src="${esc(imageData)}" alt="preview" class="img-preview">` : '<div style="color: var(--text2); font-size: 12px;">Выберите фото (PNG, JPEG, WebP до 2 МБ)</div>'}
-        <label class="img-upload-wrap"><span class="img-upload-trigger">📸 Выбрать фото</span><input type="file" id="imgUpload" accept="image/png,image/jpeg,image/webp" class="img-upload-input"></label>
-        ${imageData ? '<button type="button" class="img-remove" id="imgRemove">✕ Удалить</button>' : ''}
-      </div>
-      <label style="font-size: 12px; color: var(--muted);">Если фото не выбрано, будет использована иконка:</label>
-      <input name="icon" maxlength="4" value="${esc(p.icon)}">
+      <label>Иконка (эмодзи)</label><input name="icon" maxlength="4" value="${esc(p.icon)}">
       <div class="err" id="pErr"></div>
       <div style="display:flex;gap:8px;margin-top:10px"><button class="btn primary" type="submit">Сохранить</button><button class="btn" type="button" id="pCancel">Отмена</button></div></form>`;
     document.body.appendChild(bg);
-    const f = $("form", bg); 
-    f.category.value = p.category;
-    
-    const imgBox = $(".img-preview-box", bg);
-    const imgUpload = $("#imgUpload", bg);
-    const imgRemoveBtn = $("#imgRemove", bg);
-    
-    // Handle image selection with validation
-    imgUpload.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      
-      // Validate size (2 MB max)
-      if (file.size > 2 * 1024 * 1024) {
-        $("#pErr", bg).textContent = "Файл слишком большой (макс. 2 МБ)";
-        imgUpload.value = "";
-        return;
-      }
-      
-      // Validate type
-      if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
-        $("#pErr", bg).textContent = "Поддерживаются только PNG, JPEG, WebP";
-        imgUpload.value = "";
-        return;
-      }
-      
-      $("#pErr", bg).textContent = "";
-      
-      // Read file as Data URL
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        imageData = evt.target.result;
-        
-        // Update preview
-        const preview = imgBox.querySelector(".img-preview");
-        if (preview) preview.src = imageData;
-        else {
-          const img = document.createElement("img");
-          img.src = imageData;
-          img.alt = "preview";
-          img.className = "img-preview";
-          imgBox.insertBefore(img, imgBox.querySelector(".img-upload-wrap"));
-        }
-        
-        imgBox.classList.add("has-image");
-        if (!imgRemoveBtn) {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "img-remove";
-          btn.id = "imgRemove";
-          btn.textContent = "✕ Удалить";
-          btn.addEventListener("click", (e) => {
-            e.preventDefault();
-            imageData = null;
-            imgUpload.value = "";
-            const preview = imgBox.querySelector(".img-preview");
-            if (preview) preview.remove();
-            btn.remove();
-imgBox.classList.remove("has-image");
-        imgBox.querySelector(".img-upload-wrap").insertAdjacentHTML("beforebegin", '<div style="color: var(--text2); font-size: 12px;">Выберите фото (PNG, JPEG, WebP до 2 МБ)</div>');
-      });
-    }
-      };
-      reader.onerror = () => {
-        $("#pErr", bg).textContent = "Ошибка чтения файла";
-        imgUpload.value = "";
-      };
-      reader.readAsDataURL(file);
-    });
-    
-    // Remove image handler
-    if (imgRemoveBtn) {
-      imgRemoveBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        imageData = null;
-        imgUpload.value = "";
-        const preview = imgBox.querySelector(".img-preview");
-        if (preview) preview.remove();
-        imgRemoveBtn.remove();
-imgBox.classList.remove("has-image");
-        imgBox.querySelector(".img-upload-wrap").insertAdjacentHTML("beforebegin", '<div style="color: var(--text2); font-size: 12px;">Выберите фото (PNG, JPEG, WebP до 2 МБ)</div>');
-      });
-    }
-    
+    const f = $("form", bg); f.category.value = p.category;
     $("#pCancel", bg).onclick = () => bg.remove();
     bg.addEventListener("mousedown", (e) => { if (e.target === bg) bg.remove(); });
     f.addEventListener("submit", async (e) => {
       e.preventDefault();
       try {
-        await api("/admin/api/product", { 
-          id: p.id, 
-          inStock: p.inStock, 
-          category: f.category.value, 
-          brand: f.brand.value, 
-          name: f.name.value, 
-          price: Number(f.price.value), 
-          strengths: f.strengths.value, 
-          icon: f.icon.value,
-          image: imageData
-        });
+        const body = { id: p.id, category: f.category.value, brand: f.brand.value, name: f.name.value, price: Number(f.price.value), strengths: f.strengths.value, icon: f.icon.value };
+        // остаток шлём только если его изменили (или товар новый), чтобы не затереть свежие продажи
+        if (isNew || String(f.stock.value) !== String(p.stock)) body.stock = f.stock.value;
+        await api("/admin/api/product", body);
         bg.remove(); toast("Сохранено");
       } catch (err) { $("#pErr", bg).textContent = err.message; }
     });
